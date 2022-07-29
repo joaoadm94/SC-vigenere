@@ -1,25 +1,13 @@
-class Key {
-    private:
-        const int maxLength;
-        int length;
-        char* key;
+class Vigenere {
     public:
-        Key();
-        void setKey();
-        int getLength();
-        int getOffset(int position);
+        char* cifrar(Chave chave, Texto texto);
+        char* decifrar(Chave chave, Texto texto);
 };
 
-class Text {
+class MapaDeslocamento {
     private:
-        const int maxLength;
-        int length;
-        char* plaintext;
-        char* encrypted;
+        std::map<char, int> mapaDeslocamento;
     public:
-        Text();
-        int openFile(char *fileName);
-        int getLength();
-        int encrypt(Key* key);
-        int decrypt(Key *key);
+        void criarMapa();
+        char getDeslocamento(char c);
 };

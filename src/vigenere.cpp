@@ -1,99 +1,50 @@
 #include <iostream>
 #include <fstream> 
 #include <string>
+#include <map>
 #include <ctype.h>
-#include <regex>
+#include "text.h"
 #include "vigenere.h"
 
-int preprocessar(char* texto) {
-    int i = 0;
-    while(texto[i] != '\0') {
-        texto[i] = toupper(texto[i]);
-        /*
-        switch(string[i]) {
-            // caracteres especiais À Á Â Ã
-            case 'À': case 'Á':
-            case 'Â': case 'Ã':
-                string[i] = 65;
-                break;
-            // caracteres especiais Ç
-            case 199:
-                string[i] = 67;
-                break;
-            // caracteres especiais É Ê
-            case 201: case 202:
-                string[i] = 69;
-                break;
-            // caracteres especiais Í
-            case 205: 
-                string[i] = 73;
-                break;
-            // caracteres especiais Ó Ô Õ
-            case 211: case 212:
-            case 213:
-                string[i] = 79;
-                break;
-            // caracteres especiais Ú
-            case 218:
-                string[i] = 85;
-                break;
-        }
-        */
-        i++;
-    }
-    return i-1;
+MapaDeslocamento::MapaDeslocamento() {
+    mapaDeslocamento['A'] = 0;
+    mapaDeslocamento['B'] = 1;
+    mapaDeslocamento['C'] = 2;
+    mapaDeslocamento['D'] = 3;
+    mapaDeslocamento['E'] = 4;
+    mapaDeslocamento['F'] = 5;
+    mapaDeslocamento['G'] = 6;
+    mapaDeslocamento['H'] = 7;
+    mapaDeslocamento['I'] = 8;
+    mapaDeslocamento['J'] = 9;
+    mapaDeslocamento['K'] = 10;
+    mapaDeslocamento['L'] = 11;
+    mapaDeslocamento['M'] = 12;
+    mapaDeslocamento['N'] = 13;
+    mapaDeslocamento['O'] = 14;
+    mapaDeslocamento['P'] = 15;
+    mapaDeslocamento['Q'] = 16;
+    mapaDeslocamento['R'] = 17;
+    mapaDeslocamento['S'] = 18;
+    mapaDeslocamento['T'] = 19;
+    mapaDeslocamento['U'] = 20;
+    mapaDeslocamento['V'] = 21;
+    mapaDeslocamento['W'] = 22;
+    mapaDeslocamento['X'] = 23;
+    mapaDeslocamento['Y'] = 24;
+    mapaDeslocamento['Z'] = 25;
 }
 
-Key::Key() : maxLength(50) {
-    key = new char[maxLength];
+char MapaDeslocamento::getDeslocamento(char c){
+    return mapaDeslocamento[c];
 }
 
-int Key::getLength() {
-    return length;
-}
-
-int Key::getOffset(int position) {
-    std::cout << key[position] - 'A' << std::endl; 
-    return key[position] - 'A';
-}
-// Funcao aceita qualquer chave. Falta filtrar para apenas letras
-void Key::setKey() {
-    std::cout << "Digite a chave utilizada para cifrar a mensagem (max. 50 caracteres)" << std::endl;
-    std::fgets(key, maxLength, stdin);
-    length = preprocessar(key);
-}
-
-Text::Text() : maxLength(5000) {
-    plaintext = new char[maxLength];
-}
-
-int Text::getLength() {
-    return length;
-}
-
-int Text::openFile(char *fileName) {
-    std::ifstream myFile;
-    myFile.open(fileName, std::ios::in); // read
-    if (myFile.is_open()){
-        std::cout << "Texto em claro aberto corretamente." << std::endl;
-        myFile.get(plaintext, maxLength, '\0');
-        length = preprocessar(plaintext);
-        myFile.close();
-    } else {
-        std::cout << "Texto em claro nao foi aberto." << std::endl;
-        std::cout << "A execucao sera interrompida." << std::endl;
-        return 1;
-    }
-    return 0;
-}
-
-
-int Text::encrypt(Key* key) {
+char* Vigenere::cifrar(Chave chave, Texto texto) {
     int i = 0;
     int j = 0;
-    encrypted = new char[length];
+    char* saida = new char[texto.getComprimento()];
     while(plaintext[i] != '\0') {
-        if (j == key->getLength()) {
+        if (j == key->getComprimento()) {
             j = 0;
         }
         if (plaintext[i] >= 'A' && plaintext[i] <= 'Z') {
@@ -109,13 +60,30 @@ int Text::encrypt(Key* key) {
     }
     encrypted[i+1] = '\0';
     std::cout << encrypted << std::endl;
+    std::cin >> i;
     return 0;
 }
 
 int Text::decrypt(Key *key) {
     int i = 0;
     int j = 0;
-    char* decrypted = new char[length];
-    while(decrypted[i] = '\0')
-
+    decrypted = new char[Comprimento];
+    while(encrypted[i] != '\0'){
+        if(j == key->getComprimento()){
+            j = 0;
+        }
+        if (encrypted[i] >= 'A' && encrypted[i] <= 'Z') {
+            decrypted[i] = encrypted[i] - key->getOffset(j);
+            if (decrypted[i] < 'A') {
+                decrypted[i] = decrypted[i] + 26;
+            }
+            j++;  
+        } else {
+            decrypted[i] = encrypted[i];
+        }
+        i++;
+    }
+    decrypted[i+1] = '\0';
+    std::cout << decrypted << std::endl;
+    return 0;
 }
