@@ -21,4 +21,5 @@ class Text {
         int openFile(char *fileName);
         int getLength();
         int encrypt(Key* key);
+        int decrypt(Key *key);
 };
