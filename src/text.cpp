@@ -1,9 +1,6 @@
-#include <iostream>
-#include <fstream> 
-#include <string>
-#include <ctype.h>
-#include <regex>
 #include "text.h"
+
+#define MAX_COMP_CHAVE 20
 
 MapaDeslocamento::MapaDeslocamento() {
     mapaDeslocamento['A'] = 0;
@@ -38,20 +35,103 @@ char MapaDeslocamento::getDeslocamento(char c){
     return mapaDeslocamento[c];
 }
 
+MapaTrigramas::MapaTrigramas() {
+    frequenciaMultiplos = new int[MAX_COMP_CHAVE];
+    for (int i = 0; i < MAX_COMP_CHAVE; i++) {
+        frequenciaMultiplos[i] = 0;
+    }
+}
+
+void MapaTrigramas::adicionarTrigrama(std::string trigrama, int posicao) {
+    trigramas[trigrama].push_back(posicao);
+}
+
+void MapaTrigramas::imprimirMapa() {
+    std::map<std::string, std::vector<int>>::const_iterator it;
+    std::vector<int> v;
+
+    for (it = trigramas.cbegin(); it != trigramas.cend(); it++) {
+        std::cout << it->first << " [";
+        v = it->second;
+        for(long unsigned int i = 0; i < v.size(); i++) {
+            std::cout << v.at(i);
+            if (i == v.size() - 1) {
+                break;
+            }
+            std::cout << ", ";
+        }
+        std::cout << "]" << std::endl;
+    }
+}
+
+void MapaTrigramas::calcularFrequenciaMultiplos(int numero) {
+    for (int i = 2; i < MAX_COMP_CHAVE+1; i++) {
+        /* std::cout << frequenciaMultiplos[i] << std::endl;
+        std::cout << i << std::endl; */
+        if (numero%i == 0) {
+            frequenciaMultiplos[i-2]++;
+        }
+    }
+}
+
+void MapaTrigramas::imprimirFrequenciaMultiplos() {
+    std::cout << "Frequencia de multiplos" << std::endl;
+    int max = 0;
+    int maxIndice = 0;
+    for (int i = 0; i < MAX_COMP_CHAVE; i++) {
+        std::cout << i+2 << " ~> " << frequenciaMultiplos[i] << std::endl; 
+        if (frequenciaMultiplos[i] > max) {
+            max = frequenciaMultiplos[i];
+            maxIndice = i+2;
+        }
+    } 
+    std::cout << "Mais frequente: múltiplos de " << maxIndice << std::endl;
+}
+
+void MapaTrigramas::gerarMapaEspacos(MapaTrigramas* mapaDestino) {
+    std::map<std::string, std::vector<int>>::const_iterator it;
+    std::vector<int> v;
+    std::string s;
+    int espaco = 0;
+
+    std::cout << "Criando mapa de espaços entre trigramas repetidos: " << std::endl;
+    for (it = trigramas.cbegin(); it != trigramas.cend(); it++) {
+        s = it->first;
+        v = it->second;
+        for(long unsigned int i = 1; i < v.size(); i++) {
+            espaco = v.at(i) - v.at(i-1);
+            calcularFrequenciaMultiplos(espaco);
+            mapaDestino->adicionarTrigrama(s, espaco); 
+        }
+    }
+    mapaDestino->imprimirMapa();
+    imprimirFrequenciaMultiplos();
+}
+
+void MapaCestos::adicionarAoCesto(int cesto, char letra) {
+    std::map<char, int> c = cestos.at(cesto);
+    c[letra] = c[letra] + 1;
+}
+
+void imprimirCestos() {}
+
+
 int processar(char* texto){
     int comprimento = 0;
     int i = 0;
-    while(texto[i] = '\0'){
+    while(texto[i] != '\0'){
+        texto[i] = toupper(texto[i]);
         if (texto[i] >= 'A' && texto[i] <= 'Z') {
-            texto[i] = toupper(texto[i]);
+            texto[comprimento] = texto[i];
             comprimento++;
         }
         i++;
     }
+    texto[comprimento+1] = '\0';
     return comprimento;
 }
 
-Chave::Chave() : maxComprimento(50) {
+Chave::Chave() : maxComprimento(MAX_COMP_CHAVE) {
     chaveString = new char[maxComprimento];
 }
 
@@ -73,14 +153,18 @@ int* Chave::getDeslocamentos() {
 }
 
 // Funcao aceita qualquer chave. Falta filtrar para apenas letras
-void Chave::setChave() {
-    std::cout << "Digite a chave utilizada para cifrar a mensagem (max. 50 caracteres)" << std::endl;
+void Chave::obterChaveUsuario() {
+    std::cout << "Digite a chave utilizada para cifrar a mensagem (max. " << maxComprimento << " caracteres)" << std::endl;
     std::fgets(chaveString, maxComprimento, stdin);
     comprimento = processar(chaveString);
 }
 
 Texto::Texto() : maxComprimento(5000) {
     entrada = new char[maxComprimento];
+    saida = new char[maxComprimento];
+    mapaTrigramas = new MapaTrigramas();
+    mapaEspacos = new MapaTrigramas();
+    mapaCestos = new MapaCestos();
 }
 
 int Texto::getComprimento() {
@@ -91,13 +175,69 @@ char* Texto::getEntrada() {
     return entrada;
 }
 
+char* Texto::getSaida() {
+    return saida;
+}
+
+void Texto::setSaida(char* novaSaida) {
+    saida = novaSaida;
+}
+
+char* Texto::criarSaida(){
+    saida = new char[comprimento];
+    return saida;
+}
+
+void Texto::copiarSaida(Texto texto) {
+    comprimento = texto.getComprimento();
+    entrada = new char[comprimento];
+    char* origem = texto.getSaida();
+    for (int i = 0; i < comprimento; i++) {
+        entrada[i] = origem[i];
+    }
+}
+
+void Texto::setComprimento(int comprimento) {
+    this->comprimento = comprimento;
+}
+
+MapaTrigramas* Texto::getMapaTrigramas() {
+    return mapaTrigramas;
+}
+
+void Texto::setMapaTrigramas(MapaTrigramas* mapaTrigramas) {
+    this->mapaTrigramas = mapaTrigramas;
+}
+
+MapaTrigramas* Texto::getMapaEspacos() {
+    return mapaEspacos;
+}
+
+void Texto::setMapaCestos(MapaCestos* mapaCestos) {
+    this->mapaCestos = mapaCestos;
+}
+
+MapaTrigramas* Texto::getMapaEspacos() {
+    return mapaEspacos;
+}
+
+void Texto::setMapaEspacos(MapaTrigramas* mapaEspacos) {
+    this->mapaEspacos = mapaEspacos;
+}
+
+
 char* Texto::getBloco(int tamanhoBloco, int posicao) {
     if (posicao > comprimento) {
         return NULL;
     }
     char* bloco = new char[tamanhoBloco];
-    for (int i = 0; i < posicao + tamanhoBloco; i++) {
+    int i = 0;
+    while(i < tamanhoBloco){
         bloco[i] = entrada[posicao+i];
+        if (entrada[posicao+i] == '\0') {
+            break;
+        }
+        i++;
     }
     return bloco;
 }
