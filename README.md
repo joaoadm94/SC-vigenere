@@ -36,6 +36,20 @@ A cifra de Vigenere é um sistema de substituição polialfabética. Neste méto
 
 ## A implementação do cifrador/decfirador
 
+O mecanismo de cifração e decifração foi explicado acima e sua implementação foi bastante direta. A linguagem utilizada foi C++, com ênfase nas capacidades de Orientação a Objetos. Foram criadas classes Chave e Texto para organizar os dados e métodos cabíveis a cada estrutura. O programa lê o arquivo de texto informado no parâmetro de execução. A chave é dada pelo usuário no terminal durante a execução. 
 
+Caso o processo de **cifração** seja selecionado, o programa soma os deslocamentos dados pela chave aos caracteres correspondentes para produzir o criptograma. O texto é cifrado em blocos do tamanho da chave para facilitar o processo. Um mapa de deslocamentos foi utilizado para acesso rápido a cada deslocamento possível. Os deslocamentos seguem a sequência A = 0, B = 1, ..., Y = 24, Z = 25. 
+
+No caso da **decifração** o processo é o mesmo exceto pelo fato que os deslocamentos são subtraídos de cada caractere. Em ambos casos o alfabeto é circular, ou seja, ao passar da letra Z continuamos na letra A e vice-versa.
+
+Os seguintes compromissos foram feitos nessa implementação:
+
+- Os caracteres especiais foram desprezados. A utilização de caracteres com acentos resulta em comportamento inesperado.
+
+- Quaisquer caracteres fora do intervalo A-Z, incluindo espaços e tabulações, são removidos do texto.
+
+- Todo o texto é convertido para letras maiúsculas durante o processo.
+
+- O resultado da cifração é exibido no console, porém não é salvo em arquivo.
 
 ## A implementação do ataque
