@@ -4,23 +4,35 @@
 #include "vigenere.h"
 
 int main (int argc, char* argv[]) {
-    Texto* original = new Texto();
-    if (argc < 2) {
+    Texto* texto = new Texto();
+    Chave* chave = new Chave();
+    if (argc < 3) {
         std::cout << "Por favor, informe o nome do arquivo de texto que deseja abrir ";
-        std::cout << "no formato do seguinte exemplo: ./bin/vigenere teste.txt.";
+        std::cout << "no formato do seguinte exemplo: ./bin/vigenere opcao teste.txt." << std::endl;
+        std::cout << "Opcoes: 1 (cifrar); 2 (decifrar); 3 (analisar)" << std::endl;
         std::cout << std::endl << "Encerrando..." << std::endl;
         return 0;
     }
-    if(original->abrirArquivo(argv[1])) {
+    if(texto->abrirArquivo(argv[2])) {
         return 0;
     }
-    Chave* chave = new Chave();
-    chave->obterChaveUsuario();
-    Vigenere::cifrar(*chave, *original);
-    Texto* cifrado = new Texto();
-    cifrado->copiarSaida(*original);
-    Vigenere::decifrar(*chave, *cifrado);
-    Vigenere::criarMapaTrigramas(*cifrado);
-    cifrado->getMapaTrigramas()->gerarMapaEspacos(cifrado->getMapaEspacos());
+    char op = argv[1][0];
+    switch(op) {
+        case '1':
+            chave->obterChaveUsuario();
+            Vigenere::cifrar(*chave, *texto);
+            break;
+        case '2':
+            chave->obterChaveUsuario();
+            Vigenere::decifrar(*chave, *texto);
+            break;
+        case '3':
+            Vigenere::criarMapaTrigramas(*texto);
+            texto->getMapaTrigramas()->gerarMapaEspacos(texto->getMapaEspacos());
+            Vigenere::analisarTextoCifrado(*texto);
+            break;
+        default:
+            std::cout << "Opção não encontrada. O programa será encerrado." << std::endl;
+    }
     return 0;
 }

@@ -35,7 +35,9 @@ class MapaCestos {
         std::vector<std::map<char, int>> cestos;
     public:
         void adicionarAoCesto(int cesto, char letra);
-        void imprimirCestos();
+        void imprimirCestos(int tamanho);
+        void imprimirCesto();
+        char buscarLetraMaisFrequente(int posicao);
 };
 
 class Chave {

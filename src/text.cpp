@@ -104,17 +104,47 @@ void MapaTrigramas::gerarMapaEspacos(MapaTrigramas* mapaDestino) {
             mapaDestino->adicionarTrigrama(s, espaco); 
         }
     }
-    mapaDestino->imprimirMapa();
+    //mapaDestino->imprimirMapa();
     imprimirFrequenciaMultiplos();
 }
 
 void MapaCestos::adicionarAoCesto(int cesto, char letra) {
-    std::map<char, int> c = cestos.at(cesto);
-    c[letra] = c[letra] + 1;
+    if((int)cestos.size() < cesto + 1) {
+        std::map<char, int> map;
+        cestos.push_back(map);
+    }
+    cestos.at(cesto)[letra] = cestos.at(cesto)[letra] + 1;
 }
 
-void imprimirCestos() {}
+/*
+void MapaCestos::imprimirCestos(int tamanho) {
+    std::map<char, int>* c;
+    int maxs[tamanho];
+    for(int i = 0; i < 26; i++) {
+        std::cout << (char) i + 65 << ": ";
+        for(int j = 0; j < tamanho; j++) {
+            c = cestos.at(j)
+        }
+    }
+}*/
 
+char MapaCestos::buscarLetraMaisFrequente(int posicao) {
+    std::map<char, int>::const_iterator it;
+    std::string s;
+    char maxChar;
+    int max = 0;
+
+    std::cout << "Buscar letra mais frequente na posicao " << posicao << ": " << std::endl;
+    for (it = cestos.at(posicao).cbegin(); it != cestos.at(posicao).cend(); it++) {
+        if(it->second > max) {
+            maxChar = it->first;
+            max = it->second;
+        }
+    }
+    std::cout << "Letra mais frequente: '" << maxChar;
+    std::cout << "', com " << max << " ocorrências" << std::endl;
+    return maxChar;
+}
 
 int processar(char* texto){
     int comprimento = 0;
@@ -154,7 +184,7 @@ int* Chave::getDeslocamentos() {
 
 // Funcao aceita qualquer chave. Falta filtrar para apenas letras
 void Chave::obterChaveUsuario() {
-    std::cout << "Digite a chave utilizada para cifrar a mensagem (max. " << maxComprimento << " caracteres)" << std::endl;
+    std::cout << "Digite a chave utilizada para cifrar/decifrar a mensagem (max. " << maxComprimento << " caracteres)" << std::endl;
     std::fgets(chaveString, maxComprimento, stdin);
     comprimento = processar(chaveString);
 }
@@ -217,8 +247,8 @@ void Texto::setMapaCestos(MapaCestos* mapaCestos) {
     this->mapaCestos = mapaCestos;
 }
 
-MapaTrigramas* Texto::getMapaEspacos() {
-    return mapaEspacos;
+MapaCestos* Texto::getMapaCestos() {
+    return mapaCestos;
 }
 
 void Texto::setMapaEspacos(MapaTrigramas* mapaEspacos) {
@@ -246,11 +276,11 @@ int Texto::abrirArquivo(char *nomeArquivo) {
     std::ifstream meuArquivo;
     meuArquivo.open(nomeArquivo, std::ios::in); // read
     if (meuArquivo.is_open()){
-        std::cout << "Texto em claro aberto corretamente." << std::endl;
+        std::cout << "Texto aberto corretamente." << std::endl;
         meuArquivo.get(entrada, maxComprimento, '\0');
         meuArquivo.close();
     } else {
-        std::cout << "Texto em claro nao foi aberto." << std::endl;
+        std::cout << "Texto nao foi aberto." << std::endl;
         std::cout << "A execucao sera interrompida." << std::endl;
         return 1;
     }

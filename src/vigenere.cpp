@@ -1,5 +1,14 @@
 #include "vigenere.h"
 
+char calcularDeslocamento(char origem, char destino) {
+    int deslocamento = destino - 65;
+    origem = origem - deslocamento;
+    if(origem < 65) {
+        origem = origem + 26;
+    }
+    return origem;
+}
+
 void Vigenere::cifrar(Chave chave, Texto texto) {
     int i = 0;
     int posicao = 0;
@@ -60,7 +69,7 @@ void Vigenere::criarMapaTrigramas(Texto texto) {
     for (int i = 0; i < 3; i++) {
         trigrama[i] = entrada[i];
     }
-    std::cout << "criando mapa: " << std::endl;
+    std::cout << "criando mapa de trigramas: " << std::endl;
     for(int i = 3; i < comprimento; i++) {
         std::string s(trigrama);
         mapa->adicionarTrigrama(s, i - 3);
@@ -69,14 +78,19 @@ void Vigenere::criarMapaTrigramas(Texto texto) {
         trigrama[2] = entrada[i];
     }
     texto.setMapaTrigramas(mapa);
-    mapa->imprimirMapa();
+    //mapa->imprimirMapa();
 }
 
 void Vigenere::analisarTextoCifrado(Texto texto) {
     int tamanhoBloco;
+    char letra;
     std::cout << "Informe o tamanho da chave:" << std::endl;
     std::cin >> tamanhoBloco;
-    int posicao;
+    std::cout << "Informe a opcao da linguagem do texto:" << std::endl;
+    std::cout << "'A' (portugues); 'E' (ingles)" << std::endl;
+    std::cin >> letra;
+    char chave[tamanhoBloco+1];
+    int posicao = 0;
     MapaCestos* mapa = texto.getMapaCestos();
     char* bloco = texto.getBloco(tamanhoBloco, posicao);
     while(bloco != NULL) {
@@ -86,5 +100,10 @@ void Vigenere::analisarTextoCifrado(Texto texto) {
         posicao = posicao + tamanhoBloco;
         bloco = texto.getBloco(tamanhoBloco, posicao);
     }
-    
+    for(int i = 0; i < tamanhoBloco; i++) {
+        chave[i] = mapa->buscarLetraMaisFrequente(i);
+        chave[i] = calcularDeslocamento(chave[i], letra);
+    }
+    chave[tamanhoBloco] = '\0';
+    std::cout << "Chave sugerida: " << chave << std::endl;
 }
