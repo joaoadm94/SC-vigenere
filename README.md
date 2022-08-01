@@ -52,4 +52,25 @@ Os seguintes compromissos foram feitos nessa implementação:
 
 - O resultado da cifração é exibido no console, porém não é salvo em arquivo.
 
+- Chave de até 20 caracteres, e texto de até 5000 caracteres, são os valores padrão, podendo ser alterados.
+
 ## A implementação do ataque
+
+O ataque a essa cifra se baseia na informação da frequência de letras em uma determinada língua. Dado um texto de tamanho suficiente esperamos que a frequência das letras presentes seja compatível com a frequência encontrada por pesquisadores de forma geral. No caso da cifra de Cesar, a análise seria simples pois todas as letras foram deslocadas pelo mesmo valor. Assim, as letras do criptograma poderiam ser ordenadas pela sua frequência. Digamos que a letra mais frequente seja 'J'. Na língua inglesa, a letra mais frequente é 'E'. Portanto podemos tentar decifrar a mensagem considerando o deslocamento entre essas letras com grande chance de sucesso.
+
+No caso da cifra de Vigenere a frequência das letras fica menos aparente visto que foram aplicados n deslocamentos diferentes para uma chave de tamanho n. Por isso o primeiro passo do ataque é escolher um tamanho de chave. Usaremos esse tamanho para agrupar as letras que foram deslocadas pelo mesmo componente da chave. Fazendo a mesma análise de frequência descrita acima em um conjunto de letras podemos nos aproximar do caractere da chave correspondente aquele conjunto. Repetimos para todos para obter a chave.
+
+Na implementação do projeto, obtemos uma sugestão para o tamanho da chave pelo seguinte procedimento: a partir do criptograma, buscamos todos os trigramas (conjuntos de três letras) que se repetem ao longo do texto. Cada trigrama corresponderia a conjuntos de três letras comuns no texto que teriam sido convertidos pelos mesmos componentes da chave. Em seguida, calculamos os espaços entre os trigramas repetidos. Nesse espaçamento a chave se repetiu várias vezes até estar na mesma posição para gerar os trigramas. Calculamos então se o espaço é múltiplo dos números 2 a k, onde k é o tamanho máximo de chave que estamos considerando - nesse caso, 20. Fazendo isso para todos os espaços e acumulando os resultados obtidos, podemos ter uma boa ideia do tamanho da chave. Afinal, se a maioria dos espaços é múltiplo de 7 então este é um bom palpite para o nosso tamanho de senha.
+
+Eleito o tamanho, é feita a divisão em grupos, análise de frequência dentro desses grupos e uma sugestão de chave é feita a partir da letra mais frequente em cada grupo. O algoritmo não é perfeito em parte devido a simplicidade dessa análise. Passos mais sofisticados podem ser adicionados. Ainda assim, a assistência oferecida pelo programa é grande, permitindo realizar várias tentativas sobre o mesmo texto para nos aproximar da chave.
+
+Características da implementação do ataque feita no projeto:
+
+- Sugere um tamanho de chave porém permite a seleção de qualquer valor.
+
+- Sugere uma letra mais frequente ('A' para português, 'E' para inglês) porém permite a seleção de qualquer letra. Essas duas características permitem experimentar bastante com o algoritmo de análise.
+
+- Funciona de forma muito precisa para criptogramas cuja chave utilizada tem comprimento igual a números primos. Para outros casos, principalmente em criptogramas codificados com chaves de comprimento par, é necessário análise adicional por parte do usuário. É muito provável que o programa sugira uma chave de tamanho 2 quando a verdadeira tem tamanho 4, 6 ou 8. 
+
+
+
